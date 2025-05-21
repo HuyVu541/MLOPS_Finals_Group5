@@ -26,7 +26,9 @@ def evaluate_model(
         feature_table_name: str):
     # mlflow.set_tracking_uri(f"file:/home/{USER}/airflow/mlruns")
     # mlflow.set_tracking_uri("file:/opt/airflow/mlruns")
-    # mlflow.set_tracking_uri("http://localhost:5000")
+    mlflow.set_tracking_uri("http://mlflow:5000")
+    # mlflow.set_tracking_uri("http://127.0.0.1:5000")
+
     """
     Validate the model using test data from PostgreSQL.
 
@@ -39,17 +41,17 @@ def evaluate_model(
         None
     """
     experiment_name = "LSTM"
-    try:
-        mlflow.create_experiment(experiment_name)
-    except mlflow.exceptions.MlflowException:
-        pass
-    mlflow.set_experiment(experiment_name)
+    experiment = mlflow.get_experiment_by_name("LSTM")
+    if experiment is None:
+        mlflow.create_experiment("LSTM", artifact_location=f"s3://mlops-group5/mlruns/{experiment_name}")
+    mlflow.set_experiment("LSTM")
     # 1. Load test data
     with mlflow.start_run() as run:
         mlflow.set_tag("phase", "validating")
         # mlflow.set_tracking_uri(f"file:/home/{USER}/airflow/mlruns")
         # mlflow.set_tracking_uri("file:/opt/airflow/mlruns")
-        # mlflow.set_tracking_uri("http://localhost:5000")
+        mlflow.set_tracking_uri("http://mlflow:5000")
+        # mlflow.set_tracking_uri("http://127.0.0.1:5000")
 
         df = construct_dataset(
             raw_db_name,

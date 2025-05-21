@@ -67,9 +67,11 @@ def train_model(
         num_layers=1):
     # mlflow.set_tracking_uri(f"file:/home/{USER}/airflow/mlruns")
     # mlflow.set_tracking_uri("file:/opt/airflow/mlruns")
-    # mlflow.set_tracking_uri("http://localhost:5000")
+    mlflow.set_tracking_uri("http://mlflow:5000")
+    
+    print(mlflow.get_tracking_uri())
+    # mlflow.set_tracking_uri("http://127.0.0.1:5000")
 
-    # print(mlflow.get_tracking_uri())
     # Testing
     df = construct_dataset(raw_db_name, raw_table_name, feature_db_name, feature_table_name)
 
@@ -82,15 +84,10 @@ def train_model(
 
     # 2. Tạo experiment và start run
     experiment_name = "LSTM"
-    logging.info('Experiment name: ', experiment_name)
-    try:
-        mlflow.create_experiment(
-            experiment_name,
-            artifact_location="s3://mlops-group5/mlruns"
-        )
-    except mlflow.exceptions.MlflowException:
-        pass
-    mlflow.set_experiment(experiment_name)
+    experiment = mlflow.get_experiment_by_name("LSTM")
+    if experiment is None:
+        mlflow.create_experiment("LSTM", artifact_location=f"s3://mlops-group5/mlruns/{experiment_name}")
+    mlflow.set_experiment("LSTM")
 
     logging.info('Starting run')
 

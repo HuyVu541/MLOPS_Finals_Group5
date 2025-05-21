@@ -20,7 +20,7 @@ def model_serving_setup(run_id):
     # For this example, we'll simulate deployment by downloading the model
     # mlflow.set_tracking_uri(f"file:/home/{USER}/airflow/mlruns")
     # mlflow.set_tracking_uri("file:/opt/airflow/mlruns")
-    mlflow.set_tracking_uri("http://localhost:5000")
+    mlflow.set_tracking_uri("http://local_host:5000")
 
     # Simulate preparing a serving environment
     serving_dir = os.path.expanduser("~/airflow/dags/serving")
