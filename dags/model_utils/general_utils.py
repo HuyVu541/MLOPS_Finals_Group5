@@ -1,23 +1,32 @@
 import pandas as pd
 import numpy as np
-from sqlalchemy import create_engine # Using SQLAlchemy for easier type mapping
-import os 
+from sqlalchemy import create_engine  # Using SQLAlchemy for easier type mapping
+import os
 
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 PG_HOST = os.getenv("PG_HOST", 'localhost')
+
+
 def fill_empty(df):
-    df_numerical = df.select_dtypes(include = 'number')
+    df_numerical = df.select_dtypes(include='number')
     df_numerical['time'] = df['time']
     df = df_numerical
     df['match_match_price'] = df['match_match_price'].replace(0, np.nan)
     df = df.ffill()
     df = df.bfill()
     df = df.fillna(0)
-    df.dropna(axis = 1)
-    return df  
+    df.dropna(axis=1)
+    return df
 
-def construct_dataset(raw_db_name, raw_table_name, feature_db_name, feature_table_name, startfrom = 0, limit = None):
+
+def construct_dataset(
+        raw_db_name,
+        raw_table_name,
+        feature_db_name,
+        feature_table_name,
+        startfrom=0,
+        limit=None):
     raw_db_uri = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{PG_HOST}:5432/{raw_db_name}"
     feature_db_uri = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{PG_HOST}:5432/{feature_db_name}"
     raw_query = f"SELECT * FROM {raw_table_name}"
@@ -29,7 +38,7 @@ def construct_dataset(raw_db_name, raw_table_name, feature_db_name, feature_tabl
 
     df['time'] = pd.to_datetime(df['time'])
     df = fill_empty(df)
-    
+
     FEATURES = [
         'time',
         'listing_ceiling',
@@ -45,12 +54,12 @@ def construct_dataset(raw_db_name, raw_table_name, feature_db_name, feature_tabl
         'match_lowest',
 
         'match_foreign_sell_volume',
-        'match_foreign_buy_volume',     
+        'match_foreign_buy_volume',
         'match_current_room',
         'match_total_room',
 
         'match_reference_price',
-        'match_match_price' 
+        'match_match_price'
     ]
     df = df[FEATURES]
 
@@ -60,12 +69,12 @@ def construct_dataset(raw_db_name, raw_table_name, feature_db_name, feature_tabl
     df = pd.merge(df, feature_df, on='time', how='left')
     df = fill_empty(df)
     # Feature set
-    
 
     if limit:
         return df.tail(limit)
-    
+
     return df
+
 
 def load_data(query: str, db_uri: str):
     engine = create_engine(db_uri)

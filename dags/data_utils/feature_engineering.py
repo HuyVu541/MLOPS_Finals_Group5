@@ -13,6 +13,7 @@ USER = os.getenv("USER")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+
 def create_features(df):
     """
     Engineers features based on listing info and order book depth.
@@ -31,8 +32,7 @@ def create_features(df):
         logging.warning("Converting 'time' column to datetime.")
         df['time'] = pd.to_datetime(df['time'], errors='coerce')
         if df['time'].isnull().any():
-             logging.warning("Some 'time' values could not be parsed and are set to NaT.")
-
+            logging.warning("Some 'time' values could not be parsed and are set to NaT.")
 
     # Define required columns for safety
     required_cols = [
@@ -60,34 +60,40 @@ def create_features(df):
     df['microprice'] = np.where(vol_sum_l1 > epsilon, numerator / vol_sum_l1, df['mid_price'])
 
     df['spread_l1'] = df['bid_ask_ask_1_price'] - df['bid_ask_bid_1_price']
-    df['relative_spread_l1'] = np.where(df['mid_price'] > epsilon, df['spread_l1'] / df['mid_price'], np.nan)
+    df['relative_spread_l1'] = np.where(
+        df['mid_price'] > epsilon,
+        df['spread_l1'] /
+        df['mid_price'],
+        np.nan)
 
     logging.info("Calculating volume & liquidity features...")
-    df['total_bid_volume_3lv'] = df['bid_ask_bid_1_volume'] + df['bid_ask_bid_2_volume'] + df['bid_ask_bid_3_volume']
-    df['total_ask_volume_3lv'] = df['bid_ask_ask_1_volume'] + df['bid_ask_ask_2_volume'] + df['bid_ask_ask_3_volume']
+    df['total_bid_volume_3lv'] = df['bid_ask_bid_1_volume'] + \
+        df['bid_ask_bid_2_volume'] + df['bid_ask_bid_3_volume']
+    df['total_ask_volume_3lv'] = df['bid_ask_ask_1_volume'] + \
+        df['bid_ask_ask_2_volume'] + df['bid_ask_ask_3_volume']
 
     df['market_depth_value_bid'] = (df['bid_ask_bid_1_price'] * df['bid_ask_bid_1_volume'] +
-                                   df['bid_ask_bid_2_price'] * df['bid_ask_bid_2_volume'] +
-                                   df['bid_ask_bid_3_price'] * df['bid_ask_bid_3_volume'])
+                                    df['bid_ask_bid_2_price'] * df['bid_ask_bid_2_volume'] +
+                                    df['bid_ask_bid_3_price'] * df['bid_ask_bid_3_volume'])
     df['market_depth_value_ask'] = (df['bid_ask_ask_1_price'] * df['bid_ask_ask_1_volume'] +
-                                   df['bid_ask_ask_2_price'] * df['bid_ask_ask_2_volume'] +
-                                   df['bid_ask_ask_3_price'] * df['bid_ask_ask_3_volume'])
+                                    df['bid_ask_ask_2_price'] * df['bid_ask_ask_2_volume'] +
+                                    df['bid_ask_ask_3_price'] * df['bid_ask_ask_3_volume'])
 
     logging.info("Calculating time-based features...")
     if 'time' in df.columns and pd.api.types.is_datetime64_any_dtype(df['time']):
         df['time_hour'] = df['time'].dt.hour
         df['time_minute'] = df['time'].dt.minute
     else:
-         logging.warning("'time' column not available or not datetime type for time-based features.")
-         df['time_hour'] = np.nan
-         df['time_minute'] = np.nan
+        logging.warning("'time' column not available or not datetime type for time-based features.")
+        df['time_hour'] = np.nan
+        df['time_minute'] = np.nan
 
     end_time = datetime.now()
     logging.info(f"Feature engineering complete. Duration: {end_time - start_time}")
 
     # Select only newly created feature columns + timestamp
     feature_columns = [
-        'time', # Keep timestamp for joining/analysis
+        'time',  # Keep timestamp for joining/analysis
         'mid_price', 'microprice', 'spread_l1', 'relative_spread_l1',
         'total_bid_volume_3lv', 'total_ask_volume_3lv',
         'market_depth_value_bid', 'market_depth_value_ask',
@@ -104,7 +110,11 @@ def create_features(df):
 
 
 # --- Main Function for DAG Task ---
-def engineering_features(golden_database, golden_table_name, feature_store_database, feature_store_table_name):
+def engineering_features(
+        golden_database,
+        golden_table_name,
+        feature_store_database,
+        feature_store_table_name):
     """
     Main feature engineering task called by Airflow.
     Reads from golden DB, creates features, saves to feature store DB.

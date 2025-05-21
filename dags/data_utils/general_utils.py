@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from sqlalchemy import create_engine # Using SQLAlchemy for easier type mapping
+from sqlalchemy import create_engine  # Using SQLAlchemy for easier type mapping
 import psycopg2
 
 DB_USER = os.getenv("DB_USER")
@@ -16,14 +16,15 @@ def load_data(query: str, db_uri: str):
     conn.close()
     return df
 
+
 def _create_table_if_not_exists(db_name, df, table_type):
     db_uri = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{PG_HOST}:5432/{db_name}"
     db_config = {
-    'dbname': db_name,
-    'user': DB_USER,
-    'password': DB_PASSWORD,
-    'host': PG_HOST,  # Use 'localhost' or your DB host
-    'port': 5432  # Default PostgreSQL port
+        'dbname': db_name,
+        'user': DB_USER,
+        'password': DB_PASSWORD,
+        'host': PG_HOST,  # Use 'localhost' or your DB host
+        'port': 5432  # Default PostgreSQL port
     }
     conn = psycopg2.connect(**db_config)
     conn.cursor()
@@ -53,6 +54,7 @@ def _create_table_if_not_exists(db_name, df, table_type):
 
     with engine.connect() as conn:
         conn.execute(create_table_query)  # Creating the table if it doesn't exist
+
 
 def insertIntoTable(db_name, df, table):
     db_config = {
@@ -99,4 +101,3 @@ def insertIntoTable(db_name, df, table):
         conn.close()
 
     return len(new_rows)
-

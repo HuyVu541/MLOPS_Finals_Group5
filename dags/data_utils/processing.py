@@ -10,6 +10,7 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 USER = os.getenv("USER")
 PG_HOST = os.getenv("PG_HOST", 'localhost')
 
+
 def validate_table(database_file, table_name):
     """
     Validate if the table in the SQLite database exists and contains data.
@@ -30,17 +31,17 @@ def validate_table(database_file, table_name):
     conn = None
     try:
         db_config = {
-        'dbname': database_file,
-        'user': DB_USER,
-        'password': DB_PASSWORD,
-        'host': PG_HOST,
-        'port': 5432
-    }
+            'dbname': database_file,
+            'user': DB_USER,
+            'password': DB_PASSWORD,
+            'host': PG_HOST,
+            'port': 5432
+        }
 
         conn = psycopg2.connect(**db_config)
 
         df = pd.read_sql_query(f"SELECT * FROM {table_name}", con=conn)
-        
+
         logging.info(f"Number of records found in '{table_name}': {len(df)}")
 
         if len(df) == 0:
@@ -48,15 +49,17 @@ def validate_table(database_file, table_name):
             # Depending on requirements, you might return True or False here.
             # Returning False as usually an empty table after ingestion is an issue.
             return False
-        
+
         if df['match_match_price'].isna().any():
             logging.info('Empty price.')
             return False
 
         # Preview data
-        sample_query = f"SELECT * FROM {table_name} LIMIT 5" # Table name cannot be parameterized here safely
+        # Table name cannot be parameterized here safely
+        sample_query = f"SELECT * FROM {table_name} LIMIT 5"
         sample_data = pd.read_sql_query(sample_query, conn)
-        print(f"\nSample data from '{table_name}':\n{sample_data.to_string()}") # Use to_string for better console output
+        # Use to_string for better console output
+        print(f"\nSample data from '{table_name}':\n{sample_data.to_string()}")
 
         logging.info(f"Validation successful for table '{table_name}'.")
         return True

@@ -7,6 +7,7 @@ import os
 
 USER = os.getenv('USER')
 
+
 def model_serving_setup(run_id):
     """Set up model serving infrastructure."""
     print("Setting up model serving...")
@@ -20,7 +21,6 @@ def model_serving_setup(run_id):
     # mlflow.set_tracking_uri(f"file:/home/{USER}/airflow/mlruns")
     # mlflow.set_tracking_uri("file:/opt/airflow/mlruns")
     mlflow.set_tracking_uri("http://localhost:5000")
-
 
     # Simulate preparing a serving environment
     serving_dir = os.path.expanduser("~/airflow/dags/serving")
@@ -43,7 +43,7 @@ import boto3
 
 # from serving.custom_predict import predict
 import joblib
-# Load the model once at startup    
+# Load the model once at startup
 # mlflow.set_tracking_uri("file:/home/{USER}/airflow/mlruns")
 # mlflow.set_tracking_uri("file:/opt/airflow/mlruns")
 # mlflow.set_tracking_uri("http://localhost:5000")
@@ -78,21 +78,21 @@ async def predict(file: UploadFile = File(...)):
 
     if data.shape != (30,23):
         raise ValueError(f"Expected input shape (30, 23), got {{data.shape}}")
-    
+
     # Convert the input data to a numpy array and reshape for the model
     data = feat_scaler.inverse_transform(data)
     data = data.reshape(1, 30, 23)  # Reshape based on your model's expected input
-        
+
     # Make predictions using the model
     predictions = model.predict(data)
     predictions = tgt_scaler.inverse_transform(model.predict(data))
-    
+
     # Return predictions in JSON format
     return {{"predictions": predictions.tolist()}}
 
 # To launch app: uvicorn app:app --reload
 """
-    
+
     with open(serving_path, "w") as f:
         f.write(prediction_script)
 

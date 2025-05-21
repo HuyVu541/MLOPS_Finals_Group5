@@ -28,11 +28,10 @@ with DAG(
     catchup=False,
     tags=["model_pipeline", "LSTM"],
 ) as dag:
-    
+
     # mlflow.set_tracking_uri(f"file:/home/{USER}/airflow/mlruns")
     # mlflow.set_tracking_uri("file:/opt/airflow/mlruns")
     # mlflow.set_tracking_uri("http://localhost:5000")
-
 
     # 1. Train model
     def _train_model(**kwargs):
@@ -53,11 +52,11 @@ with DAG(
         provide_context=True
     )
 
-    # 2. Evaluate model 
+    # 2. Evaluate model
     def _evaluate_model(**kwargs):
         run_id = kwargs['ti'].xcom_pull(task_ids="train_model", key="run_id")
         result = evaluate_model(
-            run_id = run_id,
+            run_id=run_id,
             raw_db_name='raw_data',
             raw_table_name='raw_data',
             feature_db_name='feature_db',
@@ -65,7 +64,6 @@ with DAG(
         )
         kwargs['ti'].xcom_push(key="run_id", value=result["run_id"])
         kwargs['ti'].xcom_push(key="model_uri", value=result["model_uri"])
-
 
     evaluate_model_task = PythonOperator(
         task_id="evaluate_model",
@@ -88,8 +86,6 @@ with DAG(
             print('New model not better. Using old model.')
             kwargs['ti'].xcom_push(key='best_run_id', value=best_old_run_id)
 
-            
-
     compare_model_task = PythonOperator(
         task_id="compare_model",
         python_callable=_compare_models,
@@ -98,11 +94,11 @@ with DAG(
 
     # 4a. Register model if it's better
     def _register_model(**kwargs):
-        best_run_id = kwargs['ti'].xcom_pull(task_ids = 'compare_model', key='best_run_id')
-        run_id = kwargs['ti'].xcom_pull(task_ids = 'train_model', key="run_id")
+        best_run_id = kwargs['ti'].xcom_pull(task_ids='compare_model', key='best_run_id')
+        run_id = kwargs['ti'].xcom_pull(task_ids='train_model', key="run_id")
         if run_id == best_run_id:
             register_model(
-                run_id = run_id,
+                run_id=run_id,
                 model_name="LSTM",
                 tags={"version": "auto", "source": "airflow"}
             )
@@ -115,7 +111,7 @@ with DAG(
 
     # # 6. Serve model via API (using FastAPI or Flask)
     # def _serve_model(**kwargs):
-    #     best_run_id = kwargs['ti'].xcom_pull(task_ids='compare_model', key="best_run_id") 
+    #     best_run_id = kwargs['ti'].xcom_pull(task_ids='compare_model', key="best_run_id")
     #     model_serving_setup(run_id=best_run_id)
 
     # serve_model_task = PythonOperator(
@@ -137,5 +133,5 @@ with DAG(
 
     # ==== Flow ==== #
     # train_model_task >> evaluate_model_task >> compare_model_task >> register_model_task >> serve_model_task
-    train_model_task >> evaluate_model_task >> compare_model_task >> register_model_task 
+    train_model_task >> evaluate_model_task >> compare_model_task >> register_model_task
     logging.info('Model pipeline completed.')
