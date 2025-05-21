@@ -1,7 +1,6 @@
 from mlflow.tracking import MlflowClient
 import mlflow
 import os
-import boto3
 import logging
 
 
@@ -58,7 +57,6 @@ def compare_models(new_run_id: str, experiment_name: str, metric_key: str = "map
 
     best_old_run = all_runs[0]
     best_old_value = best_old_run.data.metrics[metric_key]
-    best_old_model_uri = f"runs:/{best_old_run.info.run_id}/LSTM"
     print(f"[Old model] {metric_key}: {best_old_value:.4f}")
     print(f"[New model] {metric_key}: {new_metric_value:.4f}")
 
