@@ -7,6 +7,7 @@ import logging
 
 USER = os.getenv('USER')
 
+
 def register_model(run_id: str, model_name: str, tags: dict):
     # mlflow.set_tracking_uri(f"file:/home/{USER}/airflow/mlruns")
     # mlflow.set_tracking_uri("file:/opt/airflow/mlruns")
@@ -22,7 +23,6 @@ def register_model(run_id: str, model_name: str, tags: dict):
         client.set_model_version_tag(name=model_name, version=result.version, key=key, value=value)
 
     return result.version
-
 
 
 def compare_models(new_run_id: str, experiment_name: str, metric_key: str = "mape") -> bool:
@@ -42,7 +42,7 @@ def compare_models(new_run_id: str, experiment_name: str, metric_key: str = "map
 
     # Lấy top model trước đó trong cùng experiment
     experiment = client.get_experiment_by_name(experiment_name)
-    all_runs = client.search_runs(  
+    all_runs = client.search_runs(
         experiment_ids=[experiment.experiment_id],
         filter_string="tags.phase = 'validating'",
         order_by=[f"metrics.{metric_key} ASC"],
@@ -61,5 +61,5 @@ def compare_models(new_run_id: str, experiment_name: str, metric_key: str = "map
     best_old_model_uri = f"runs:/{best_old_run.info.run_id}/LSTM"
     print(f"[Old model] {metric_key}: {best_old_value:.4f}")
     print(f"[New model] {metric_key}: {new_metric_value:.4f}")
-    
+
     return new_metric_value < best_old_value, best_old_run.info.run_id
