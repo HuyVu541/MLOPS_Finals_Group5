@@ -1,0 +1,29 @@
+# Ignore Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore local database and config
+airflow.db
+airflow.cfg
+
+# Ignore environment files
+.env
+
+# Ignore local MLflow tracking and temp logs
+mlruns/
+logs/
+tmp/
+
+# Ignore version control
+.git/
+.gitignore
+	
+# Possibly ignore helper or local scripts if not needed in image
+predict_newest.sh
+run_airflow.sh
+setup_databases.sh
+entrypoint.sh
+webserver_config.py
+

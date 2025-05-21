@@ -1,0 +1,75 @@
+# version: "3.8"
+
+services:
+  postgres:
+    env_file: .env
+    image: postgres:13
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      AIRFLOW__WEBSERVER__SECRET_KEY: "my_ultra_secret_key_123456"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql:ro
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  mlflow:
+    env_file: .env
+    build:
+      context: ./mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ${AWS_DIR}:/root/.aws:ro   # in .env file, REPLACE AWS_DIR WITH YOUR OWN PATH!!
+   # command: tail -f /dev/null
+    restart: unless-stopped
+
+  airflow-webserver:
+    env_file: .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@postgres:5432/raw_data
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      PYTHONPATH: /opt/airflow
+      AIRFLOW__WEBSERVER__SECRET_KEY: "my_ultra_secret_key_123456"
+      AWS_PROFILE: default
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ${AWS_DIR}:/home/airflow/.aws:ro
+    command: >
+      bash -c "\
+        airflow db init && \
+        airflow users create --username admin --password admin_password --firstname FirstName --lastname LastName --email huyvuquoc.work@gmail.com --role Admin && \
+        exec airflow webserver"
+    restart: unless-stopped
+    
+  airflow-scheduler:
+    env_file: .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - airflow-webserver
+      - postgres
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@postgres:5432/raw_data
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      PYTHONPATH: /opt/airflow
+      AIRFLOW__WEBSERVER__SECRET_KEY: "my_ultra_secret_key_123456"
+      AWS_PROFILE: default
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ${AWS_DIR}:/home/airflow/.aws:ro
+    command: airflow scheduler
+    restart: unless-stopped
+volumes:
+  pgdata:
+  
