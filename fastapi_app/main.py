@@ -1,9 +1,7 @@
 import mlflow
 from mlflow.tracking import MlflowClient
 from fastapi import FastAPI, File, UploadFile, HTTPException
-import mlflow
 import joblib
-import pandas as pd
 import json
 import numpy as np
 import logging
