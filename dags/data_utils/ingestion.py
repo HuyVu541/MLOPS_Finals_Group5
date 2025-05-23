@@ -2,7 +2,7 @@ import pandas as pd
 import logging
 import os
 import gspread
-from general_utils import _create_table_if_not_exists, insertIntoTable
+from data_utils.general_utils import _create_table_if_not_exists, insertIntoTable
 
 
 # --- Configuration ---
