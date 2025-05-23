@@ -2,7 +2,10 @@ from dags.data_utils.ingestion import fetch_data_from_google_sheets
 from dags.data_utils.feature_engineering import create_features
 import numpy as np
 import pandas as pd
+import logging
 
+
+logging.info("Setting up.")
 sheet_id = "1yjmPxKbNBRD6DACtkq4l_Xp9O7ldmWujypKE9NhC6Z0"
 expected_columns = ['Time', 'listing_symbol', 'listing_ceiling', 'listing_floor',
                     'listing_ref_price', 'listing_stock_type', 'listing_exchange',
@@ -30,6 +33,7 @@ expected_columns = ['Time', 'listing_symbol', 'listing_ceiling', 'listing_floor'
 
 
 def fill_empty(df):
+    logging.info("Filling empty rows")
     df_numerical = df.select_dtypes(include='number')
     df_numerical['time'] = df['time']
     df = df_numerical
@@ -77,6 +81,7 @@ def combine_dataset(df, feature_df):
 
 
 def test_data_ingestion():
+    logging.info("Fetching data from Google Sheets.")
     df = fetch_data_from_google_sheets(sheet_id, expected_columns, 'Sheet5')
     assert len(df) == 30
     global _df  # temporary global to share with next test
@@ -84,7 +89,9 @@ def test_data_ingestion():
 
 
 def test_data_engineer():
+    logging.info('Creating new features.')
     feature_df = create_features(_df)
+    logging.info('Creating full dataset.')
     df = combine_dataset(_df, feature_df)
     expected_features = [
         'listing_ceiling', 'listing_floor', 'listing_ref_price', 'listing_listed_share',
