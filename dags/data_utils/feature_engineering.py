@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 import psycopg2
-from data_utils.general_utils import _create_table_if_not_exists, insertIntoTable
+from .general_utils import _create_table_if_not_exists, insertIntoTable
 
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
@@ -104,7 +104,7 @@ def create_features(df):
 
     # Handle potential infinities resulting from calculations
     final_features.replace([np.inf, -np.inf], np.nan, inplace=True)
-    logging.info(f"After feature engineering: {len(final_features)} rows")
+    logging.info(f"After feature engineering: {len(final_features)} rows.")
 
     return final_features
 
