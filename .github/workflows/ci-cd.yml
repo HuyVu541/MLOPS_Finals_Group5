@@ -58,6 +58,6 @@ jobs:
               with:
                 context: .
                 push: true
-                tags: ${{ secrets.DOCKERHUB_USERNAME }}/simple-fastapi:latest
+                tags: ${{ secrets.DOCKERHUB_USERNAME }}/stock_prediction_group5:latest
 
             # Add your additional deployment steps here if needed
