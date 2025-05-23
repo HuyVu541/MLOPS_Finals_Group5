@@ -13,6 +13,7 @@ feat_scaler = None
 tgt_scaler = None
 model = None
 
+
 def load_mlflow_artifacts():
     global feat_scaler, tgt_scaler, model
 
@@ -44,13 +45,16 @@ def load_mlflow_artifacts():
     model_name = 'LSTM'
     model = mlflow.keras.load_model(f"runs:/{run_id}/{model_name}")
 
+
 @app.on_event("startup")
 def startup_event():
     load_mlflow_artifacts()
 
+
 @app.get("/")
 def home():
     return {"message": "Model Serving API. Use POST /predict with a JSON file to get predictions."}
+
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
@@ -67,4 +71,3 @@ async def predict(file: UploadFile = File(...)):
     predictions = tgt_scaler.inverse_transform(predictions)
 
     return {"predictions": predictions.tolist()}
-
