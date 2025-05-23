@@ -15,6 +15,7 @@ COPY --chown=airflow:airflow ./dags /opt/airflow/dags
 COPY --chown=airflow:airflow requirements.txt /requirements.txt
 COPY --chown=airflow:airflow ./mlflow /opt/airflow/mlflow
 COPY --chown=airflow:airflow ./postgre /opt/airflow/postgre
+COPY --chown=airflow:airflow ./fastapi_app /opt/airflow/fastapi_app
 
 USER airflow
 

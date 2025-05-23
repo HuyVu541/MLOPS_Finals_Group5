@@ -42,7 +42,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      #- ./dags:/opt/airflow/dags
+      - ./dags:/opt/airflow/dags
       - ${AWS_DIR}:/home/airflow/.aws:ro
     command: >
       bash -c "\
@@ -66,9 +66,21 @@ services:
       AIRFLOW__WEBSERVER__SECRET_KEY: "my_ultra_secret_key_123456"
       AWS_PROFILE: default
     volumes:
-      #- ./dags:/opt/airflow/dags
+      - ./dags:/opt/airflow/dags
       - ${AWS_DIR}:/home/airflow/.aws:ro
     command: airflow scheduler
+    restart: unless-stopped
+    
+  fastapi-app:
+    env_file: .env
+    build:
+      context: ./fastapi_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./fastapi_app:/app
+      - ${AWS_DIR}:/root/.aws:ro
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     restart: unless-stopped
 volumes:
   pgdata:
