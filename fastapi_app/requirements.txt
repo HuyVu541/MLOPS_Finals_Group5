@@ -8,3 +8,4 @@ tensorflow  # or keras if you use standalone
 python-multipart==0.0.20
 boto3
 dill
+httpx
