@@ -2,8 +2,7 @@ from dags.data_utils.ingestion import fetch_data_from_google_sheets
 from dags.data_utils.feature_engineering import create_features
 import numpy as np
 import pandas as pd
-import requests
-import json
+
 sheet_id = "1yjmPxKbNBRD6DACtkq4l_Xp9O7ldmWujypKE9NhC6Z0"
 expected_columns = ['Time', 'listing_symbol', 'listing_ceiling', 'listing_floor',
                     'listing_ref_price', 'listing_stock_type', 'listing_exchange',
