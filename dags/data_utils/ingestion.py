@@ -12,7 +12,7 @@ SHEET_NUMBER = os.environ.get("GOOGLE_SHEET_NUMBER", "Sheet4")
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def fetch_data_from_google_sheets(sheet_id, expected_columns, SHEET_NUMBER = SHEET_NUMBER):
+def fetch_data_from_google_sheets(sheet_id, expected_columns, SHEET_NUMBER=SHEET_NUMBER):
     """
     Fetches data from the configured Google Sheet and converts specific columns to appropriate types.
     """

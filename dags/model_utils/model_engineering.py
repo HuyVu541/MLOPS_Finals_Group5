@@ -75,12 +75,12 @@ def train_model(
     # Testing
     df = construct_dataset(raw_db_name, raw_table_name, feature_db_name, feature_table_name)
 
-    FEATURES = ['listing_ceiling', 'listing_floor', 'listing_ref_price', 'listing_listed_share', \
-                      'match_match_vol', 'match_accumulated_volume', 'match_accumulated_value', 'match_avg_match_price', \
-                        'match_highest', 'match_lowest', 'match_foreign_sell_volume', 'match_foreign_buy_volume', \
-                        'match_current_room', 'match_total_room', 'match_reference_price', 'mid_price', \
-                        'microprice', 'spread_l1', 'relative_spread_l1', 'total_bid_volume_3lv', \
-                        'total_ask_volume_3lv', 'market_depth_value_bid', 'market_depth_value_ask']
+    FEATURES = ['listing_ceiling', 'listing_floor', 'listing_ref_price', 'listing_listed_share',
+                'match_match_vol', 'match_accumulated_volume', 'match_accumulated_value', 'match_avg_match_price',
+                'match_highest', 'match_lowest', 'match_foreign_sell_volume', 'match_foreign_buy_volume',
+                'match_current_room', 'match_total_room', 'match_reference_price', 'mid_price',
+                'microprice', 'spread_l1', 'relative_spread_l1', 'total_bid_volume_3lv',
+                'total_ask_volume_3lv', 'market_depth_value_bid', 'market_depth_value_ask']
     TARGET = ['match_match_price']
     print("AWS_SHARED_CREDENTIALS_FILE:", os.getenv("AWS_SHARED_CREDENTIALS_FILE"))
     logging.info('Creating experiment')

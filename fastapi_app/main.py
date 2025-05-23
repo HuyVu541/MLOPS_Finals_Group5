@@ -7,7 +7,7 @@ import pandas as pd
 import json
 import numpy as np
 import logging
-# Load the model once at startup    
+# Load the model once at startup
 import os
 
 MLFLOW_HOST = os.getenv('MLFLOW_HOST', 'mlflow')
@@ -31,10 +31,10 @@ runs = client.search_runs(
 
 best_run = runs[0]
 run_id = best_run.info.run_id
-logging.info(f"{run_id}")	
+logging.info(f"{run_id}")
 
 feat_local_path = mlflow.artifacts.download_artifacts(
-           artifact_uri=f"runs:/{run_id}/feat_scaler/feat_scaler.pkl")
+    artifact_uri=f"runs:/{run_id}/feat_scaler/feat_scaler.pkl")
 feat_scaler = joblib.load(feat_local_path)
 
 tgt_local_path = mlflow.artifacts.download_artifacts(
@@ -53,23 +53,25 @@ def home():
     return {"message": "Model Serving API. Use POST /predict with a JSON file to get predictions."}
 
 # Prediction endpoint: accepts a JSON file upload
+
+
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     # Read the uploaded JSON file
     contents = await file.read()
     data = np.array(json.loads(contents.decode("utf-8")))
 
-    if data.shape != (30,23):
-    	raise HTTPException(status_code=400, detail=f"Expected input shape (30, 23), got {data.shape}")
-    
+    if data.shape != (30, 23):
+        raise HTTPException(status_code=400, detail=f"Expected input shape (30, 23), got {data.shape}")
+
     # Convert the input data to a numpy array and reshape for the model
     data = feat_scaler.inverse_transform(data)
     data = data.reshape(1, 30, 23)  # Reshape based on your model's expected input
-        
+
     # Make predictions using the model
     predictions = model.predict(data)
     predictions = tgt_scaler.inverse_transform(predictions)
-    
+
     # Return predictions in JSON format
     return {"predictions": predictions.tolist()}
 
